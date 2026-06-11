@@ -2,793 +2,106 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game Arcade Hub HD + Video</title>
+    <title>Tugas Kecil 1 - Web Client Development</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, #111726, #2a0845);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 15px 0;
-            touch-action: manipulation; 
-            min-height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
+        /* Sesuai ketentuan nomor 7: Hanya boleh styling border untuk tabel */
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
         }
-
-        h1 {
-            margin: 0 0 5px 0;
-            font-size: 26px;
-            text-shadow: 0 0 10px rgba(0,255,200,0.5);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        th, td {
+            padding: 8px;
+            text-align: left;
         }
-
-        .score-board {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .score-board p {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 0;
-            transition: transform 0.2s ease;
-        }
-
-        #scoreBox.pulse {
-            transform: scale(1.3);
-            color: #00ffcc !important;
-        }
-
-        #score { color: #00ffcc; }
-        #highScore { color: #f1c40f; }
-
-        #gameCanvasWrapper {
-            position: relative;
-            max-width: 90vw;
-            max-height: 90vw;
-            width: 380px;
-            height: 380px;
-            margin-bottom: 15px;
-            border: 4px solid rgba(0, 255, 200, 0.3);
-            box-shadow: 0 0 25px rgba(0, 255, 200, 0.2);
-            border-radius: 16px;
-            overflow: hidden;
-            background-color: #0d1117;
-        }
-
-        #gameCanvasWrapper.shake {
-            animation: shakeAnim 0.4s ease-in-out;
-        }
-
-        @keyframes shakeAnim {
-            0%, 100% { transform: translate(0, 0); }
-            20%, 60% { transform: translate(-5px, 4px); }
-            40%, 80% { transform: translate(5px, -4px); }
-        }
-
-        #gameCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* --- MENU UTAMA --- */
-        #mainMenu {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(13, 17, 23, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 15;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .menu-btn {
-            width: 80%;
-            padding: 12px;
-            margin: 8px 0;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #fff;
-            background: rgba(0, 255, 200, 0.1);
-            border: 2px solid #00ffcc;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-
-        .menu-btn:active, .menu-btn:hover {
-            background: #00ffcc;
-            color: #111;
-            transform: scale(0.95);
-        }
-
-        /* --- VIDEO & OVERLAYS --- */
-        #videoOverlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 8;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        #videoOverlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        #milestoneVideo {
-            width: 90%; height: 90%;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
-        }
-
-        #comboText {
-            position: absolute;
-            top: 15%; left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: #00ffcc;
-            text-shadow: 0 0 20px rgba(0,255,200,0.8), 2px 2px 5px black;
-            font-style: italic;
-            z-index: 9;
-            pointer-events: none;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
-            opacity: 0;
-        }
-
-        #comboText.show {
-            transform: translate(-50%, -50%) scale(1.2);
-            opacity: 1;
-        }
-
-        /* --- GAME OVER SCREEN --- */
-        #gameOverScreen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('image_1.jpg.jpeg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            z-index: 10;
-        }
-
-        #gameOverScreen::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: -1;
-        }
-
-        #gameOverScreen h2 {
-            margin: 0 0 10px 0;
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: #e74c3c;
-            text-shadow: 0 0 15px rgba(231, 76, 60, 0.6), 3px 3px 6px rgba(0, 0, 0, 0.8);
-            animation: gameOverPulse 1.5s infinite;
-        }
-
-        #gameOverScreen p {
-            font-size: 1.5rem;
-            color: #f1c40f;
-            margin: 0 0 20px 0;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
-
-        #restartBtn { background: linear-gradient(45deg, #00ffcc, #00a8ff); color: #111; }
-        #menuBtn { background: #555; color: white; }
-        .action-btn:active { transform: translateY(3px); }
-
-        @keyframes gameOverPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-        }
-
-        /* --- KONTROL HP --- */
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 68px);
-            grid-template-rows: repeat(3, 68px);
-            gap: 8px;
-        }
-
-        .btn {
-            background-color: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(5px);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 18px;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .btn:active {
-            background-color: #00ffcc;
-            color: #111;
-            transform: scale(0.95);
-        }
-
-        #up { grid-column: 2; grid-row: 1; }
-        #left { grid-column: 1; grid-row: 2; }
-        #right { grid-column: 3; grid-row: 2; }
-        #down { grid-column: 2; grid-row: 3; }
-
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <h1 id="gameTitle">ARCADE HUB</h1>
+    <h2>Tugas Kecil 1 - Web Client Development</h2>
+
+    <h3>Identitas Mahasiswa</h3>
+    <p>Nama: Arjuna Rangga Lengkey</p>
+    <p>NIM: 25110300044</p>
+
+    <h3>Daftar Mata Kuliah Semester Ini</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Mata Kuliah</th>
+                <th colspan="2">Jadwal</th>
+                <th>SKS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2">1</td>
+                <td rowspan="2">Web Client Development</td>
+                <td>Selasa</td>
+                <td>08.00-10.30</td>
+                <td rowspan="2">3</td>
+            </tr>
+            <tr>
+                <td>Kamis</td>
+                <td>13.00-14.40</td>
+            </tr>
+            <tr>
+                <td rowspan="2">2</td>
+                <td rowspan="2">Basis Data</td>
+                <td>Senin</td>
+                <td>10.00-11.40</td>
+                <td rowspan="2">3</td>
+            </tr>
+            <tr>
+                <td>Rabu</td>
+                <td>13.00-14.40</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Matematika Diskrit</td>
+                <td>Jumat</td>
+                <td>08.00-10.30</td>
+                <td>3</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4">Total SKS</th>
+                <th>9</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h3>Catatan Belajar</h3>
+    <p>Berikut hal-hal penting yang sudah dipelajari di Web Client Development:</p>
+    <ol>
+        <li>Struktur HTML setiap halaman web wajib punya <strong>DOCTYPE</strong>, html, head, dan body.</li>
+        <li>Tag formatting teks seperti bold, italic, underline, highlight, maupun strong.</li>
+        <li>Perbedaan <code>&lt;b&gt;</code> dan <code>&lt;strong&gt;</code> &rarr; keduanya tebal, tapi strong punya makna semantik.</li>
+        <li>Cara membuat <a href="https://google.com">hyperlink ke google</a> dengan tag &lt;a href dan menyisipkan gambar dengan &lt;img src&gt;.</li>
+        <li>Penggunaan inline style untuk font, color, dan spacing.</li>
+    </ol>
+
+    <p>Topik yang masih perlu diperdalam:</p>
+    <ul>
+        <li><span style="background-color: yellow;">CSS Selector</span> terutama perbedaan class dan ID.</li>
+        <li><span style="background-color: yellow;">Box Model</span> memahami margin, padding, dan border secara visual.</li>
+        <li><span style="background-color: yellow;">Konsep specificity</span> aturan mana yang menang saat ada konflik style.</li>
+    </ul>
+
+    <h3>Refleksi Pengerjaan</h3>
     
-    <div class="score-board">
-        <p id="scoreBox">Skor: <span id="score">0</span></p>
-        <p>Tertinggi: <span id="highScore">0</span></p>
-    </div>
-    
-    <div id="gameCanvasWrapper">
-        
-        <div id="mainMenu">
-            <h2 style="color: #00ffcc; margin-top: 0;">PILIH GAME</h2>
-            <button class="menu-btn" onclick="startGame('snake')">🐍 Ular HD</button>
-            <button class="menu-btn" onclick="startGame('pong')">🏓 Pong Retro</button>
-            <button class="menu-btn" onclick="startGame('catcher')">📦 Catcher Box</button>
-            <button class="menu-btn" onclick="startGame('jumper')">🏃 Jumper Block</button>
-        </div>
+    <h4>Approach</h4>
+    <p>
+        <!-- TULIS PENDEKATAN ATAU CARA KAMU MENGERJAKAN TUGAS INI DI SINI -->
+        Saya memulai tugas ini dengan menyusun struktur dasar HTML terlebih dahulu. Kemudian saya membuat tabel mata kuliah menggunakan tag table, tr, th, dan td, serta mengombinasikan rowspan untuk jadwal yang memiliki dua hari. Setelah itu, saya melengkapi bagian daftar menggunakan ordered dan unordered list, serta menambahkan hyperlink ke Google sesuai instruksi.
+    </p>
 
-        <div id="comboText">AWESOME!</div>
-        
-        <div id="videoOverlay">
-            <video id="milestoneVideo" playsinline muted autoplay>
-                <source src="animasi5.mp4.mp4" type="video/mp4">
-            </video>
-        </div>
+    <h4>Catatan</h4>
+    <p>
+        <!-- TULIS PENGALAMAN ATAU KENDALA KAMU DI SINI -->
+        Tantangan utama dalam tugas ini adalah menyusun baris tabel (rowspan) agar presisi dan sesuai dengan gambar contoh tanpa menggunakan CSS layouting tambahan karena adanya batasan aturan. Namun, tugas ini sangat membantu dalam memantapkan pemahaman dasar tag HTML murni.
+    </p>
 
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        
-        <div id="gameOverScreen" class="hidden">
-            <h2>Game Over</h2>
-            <p>Skor Akhir: <span id="finalScore">0</span></p>
-            <div class="btn-group">
-                <button id="restartBtn" class="action-btn" onclick="resetGame()">Main Lagi</button>
-                <button id="menuBtn" class="action-btn" onclick="goToMenu()">Menu</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="controls">
-        <button class="btn" id="up">▲</button>
-        <button class="btn" id="left">◀</button>
-        <button class="btn" id="right">▶</button>
-        <button class="btn" id="down">▼</button>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Global State
-        let activeGame = null;
-        let gameInterval;
-        let score = 0;
-        let isGameOver = false;
-        let isVideoPlaying = false; // Status global agar video bisa pause SEMUA game
-        let savedHighScores = JSON.parse(localStorage.getItem('arcadeHighScores')) || { snake: 0, pong: 0, catcher: 0, jumper: 0 };
-        
-        // Fitur General & Suara
-        let particles = [];
-        let audioCtx = null;
-        
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function soundEffect(freq, type, duration) {
-            if (!audioCtx) return;
-            try {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
-
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 12; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
-                    radius: Math.random() * 3 + 1, alpha: 1, color: color
-                });
-            }
-        }
-
-        function drawParticles() {
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.alpha -= 0.04;
-                if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        }
-
-        // --- SISTEM PEMUTAR VIDEO GLOBAL ---
-        function triggerMilestoneVideo() {
-            isVideoPlaying = true; // Hentikan game
-            
-            const wrapper = document.getElementById('gameCanvasWrapper');
-            const videoOverlay = document.getElementById('videoOverlay');
-            const video = document.getElementById('milestoneVideo');
-            const comboText = document.getElementById('comboText');
-            const scoreBox = document.getElementById('scoreBox');
-            
-            const cheers = ["AWESOME!", "GREAT JOB!", "UNSTOPPABLE!", "GODLIKE!", "CRAZY!"];
-            comboText.innerText = cheers[Math.floor(Math.random() * cheers.length)];
-
-            wrapper.classList.add('shake');
-            comboText.classList.add('show');
-            scoreBox.classList.add('pulse');
-            videoOverlay.classList.add('show');
-            
-            video.currentTime = 0;
-            video.play().catch(e => console.log("Video butuh interaksi"));
-
-            // Pause selama 2.5 detik
-            setTimeout(() => {
-                video.pause();
-                videoOverlay.classList.remove('show');
-                wrapper.classList.remove('shake');
-                comboText.classList.remove('show');
-                scoreBox.classList.remove('pulse');
-                
-                isVideoPlaying = false; // Lanjutkan game kembali
-            }, 2500); 
-        }
-
-        // Kontrol & Menu Routing
-        function goToMenu() {
-            clearInterval(gameInterval);
-            activeGame = null;
-            document.getElementById('mainMenu').classList.remove('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('gameTitle').innerText = "ARCADE HUB";
-            document.getElementById('score').innerText = "0";
-            document.getElementById('highScore').innerText = "0";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function startGame(gameName) {
-            initAudio();
-            activeGame = gameName;
-            document.getElementById('mainMenu').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('highScore').innerText = savedHighScores[gameName] || 0;
-            
-            const titles = { snake: "🐍 ULAR HD", pong: "🏓 PONG RETRO", catcher: "📦 CATCHER", jumper: "🏃 JUMPER" };
-            document.getElementById('gameTitle').innerText = titles[gameName];
-            
-            resetGame();
-        }
-
-        function resetGame() {
-            clearInterval(gameInterval);
-            score = 0;
-            isGameOver = false;
-            isVideoPlaying = false; // Pastikan video reset
-            particles = [];
-            
-            document.getElementById('score').innerText = score;
-            document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('videoOverlay').classList.remove('show');
-            document.getElementById('milestoneVideo').pause();
-            
-            if(activeGame === 'snake') setupSnake();
-            if(activeGame === 'pong') setupPong();
-            if(activeGame === 'catcher') setupCatcher();
-            if(activeGame === 'jumper') setupJumper();
-        }
-
-        function triggerGameOver() {
-            isGameOver = true;
-            clearInterval(gameInterval);
-            soundEffect(120, 'sawtooth', 0.6);
-            document.getElementById('finalScore').innerText = score;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
-
-            if (score > (savedHighScores[activeGame] || 0)) {
-                savedHighScores[activeGame] = score;
-                localStorage.setItem('arcadeHighScores', JSON.stringify(savedHighScores));
-                document.getElementById('highScore').innerText = score;
-            }
-        }
-
-        // Input Routing
-        function handleInput(dir) {
-            initAudio();
-            if(isGameOver || isVideoPlaying) return; // Kunci kontrol saat video nyala
-            if(activeGame === 'snake') {
-                if (dir == 'LEFT' && d != 'RIGHT') d = 'LEFT';
-                if (dir == 'UP' && d != 'DOWN') d = 'UP';
-                if (dir == 'RIGHT' && d != 'LEFT') d = 'RIGHT';
-                if (dir == 'DOWN' && d != 'UP') d = 'DOWN';
-            } else if(activeGame === 'pong') {
-                if(dir == 'UP') playerPaddle.dy = -5;
-                if(dir == 'DOWN') playerPaddle.dy = 5;
-            } else if(activeGame === 'catcher') {
-                if(dir == 'LEFT') catcherPlayer.dx = -6;
-                if(dir == 'RIGHT') catcherPlayer.dx = 6;
-            } else if(activeGame === 'jumper') {
-                if(dir == 'UP' && jumperPlayer.grounded) {
-                    jumperPlayer.vy = -12;
-                    jumperPlayer.grounded = false;
-                    soundEffect(400, 'square', 0.1);
-                }
-            }
-        }
-
-        function handleInputStop(dir) {
-            if(activeGame === 'pong') {
-                if((dir == 'UP' && playerPaddle.dy < 0) || (dir == 'DOWN' && playerPaddle.dy > 0)) playerPaddle.dy = 0;
-            } else if(activeGame === 'catcher') {
-                if((dir == 'LEFT' && catcherPlayer.dx < 0) || (dir == 'RIGHT' && catcherPlayer.dx > 0)) catcherPlayer.dx = 0;
-            }
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.keyCode == 37) handleInput('LEFT');
-            if (e.keyCode == 38) handleInput('UP');
-            if (e.keyCode == 39) handleInput('RIGHT');
-            if (e.keyCode == 40) handleInput('DOWN');
-        });
-        document.addEventListener('keyup', (e) => {
-            if (e.keyCode == 37) handleInputStop('LEFT');
-            if (e.keyCode == 38) handleInputStop('UP');
-            if (e.keyCode == 39) handleInputStop('RIGHT');
-            if (e.keyCode == 40) handleInputStop('DOWN');
-        });
-
-        // Touch Controls
-        ['up','left','right','down'].forEach(id => {
-            let btn = document.getElementById(id);
-            let dir = id.toUpperCase();
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(dir); });
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); handleInputStop(dir); });
-            btn.addEventListener('mousedown', () => handleInput(dir));
-            btn.addEventListener('mouseup', () => handleInputStop(dir));
-        });
-
-        // ==========================================
-        // 1. GAME ULAR (Setiap 5 poin)
-        // ==========================================
-        const box = 20;
-        let snake, food, d, currentSpeed;
-
-        function setupSnake() {
-            snake = [{ x: 9 * box, y: 10 * box }];
-            d = undefined; currentSpeed = 130;
-            generateFoodSnake();
-            gameInterval = setInterval(drawSnake, currentSpeed);
-        }
-
-        function generateFoodSnake() {
-            food = {
-                x: Math.floor(Math.random() * 19 + 1) * box + box/2,
-                y: Math.floor(Math.random() * 19 + 1) * box + box/2,
-                isGolden: Math.random() < 0.20
-            };
-        }
-
-        function drawSnake() {
-            if (isVideoPlaying) return; // Game Pause saat video nyala
-
-            ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(0, 255, 200, 0.02)';
-            for(let g=0; g<canvas.width; g+=box) {
-                ctx.strokeRect(g, 0, box, canvas.height); ctx.strokeRect(0, g, canvas.width, box);
-            }
-            drawParticles();
-
-            for (let i = 0; i < snake.length; i++) {
-                let ratio = 1 - (i / snake.length) * 0.4;
-                let currentRadius = (box / 2) * ratio;
-                ctx.save();
-                if(i == 0) {
-                    ctx.fillStyle = '#00ffcc';
-                    ctx.beginPath(); ctx.arc(snake[i].x + box/2, snake[i].y + box/2, currentRadius, 0, Math.PI*2); ctx.fill();
-                } else {
-                    ctx.fillStyle = '#2ecc71';
-                    ctx.beginPath(); ctx.arc(snake[i].x + box/2, snake[i].y + box/2, currentRadius, 0, Math.PI*2); ctx.fill();
-                }
-                ctx.restore();
-            }
-
-            ctx.save();
-            ctx.fillStyle = food.isGolden ? '#f1c40f' : '#e74c3c';
-            ctx.beginPath(); ctx.arc(food.x, food.y, box/2 - 2, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
-
-            let snakeX = snake[0].x; let snakeY = snake[0].y;
-            if (d == 'LEFT') snakeX -= box; if (d == 'UP') snakeY -= box;
-            if (d == 'RIGHT') snakeX += box; if (d == 'DOWN') snakeY += box;
-
-            if (snakeX == food.x - box/2 && snakeY == food.y - box/2) {
-                createParticles(food.x, food.y, food.isGolden ? '#f1c40f' : '#e74c3c');
-                
-                let prevScore = score;
-                score += food.isGolden ? 3 : 1;
-                soundEffect(food.isGolden ? 880 : 523, 'sine', 0.1);
-                document.getElementById('score').innerText = score;
-                
-                // Memicu video setiap Kelipatan 5
-                if (Math.floor(score / 5) > Math.floor(prevScore / 5)) {
-                    triggerMilestoneVideo(); 
-                }
-
-                generateFoodSnake();
-                if(currentSpeed > 60) {
-                    currentSpeed -= 4; clearInterval(gameInterval); gameInterval = setInterval(drawSnake, currentSpeed);
-                }
-            } else {
-                snake.pop();
-            }
-
-            let newHead = { x: snakeX, y: snakeY };
-            if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collisionSnake(newHead, snake)) {
-                triggerGameOver(); return;
-            }
-            snake.unshift(newHead);
-        }
-        
-        function collisionSnake(head, array) {
-            for (let i = 0; i < array.length; i++) {
-                if (head.x == array[i].x && head.y == array[i].y) return true;
-            }
-            return false;
-        }
-
-        // ==========================================
-        // 2. GAME PONG RETRO (Setiap 5 poin)
-        // ==========================================
-        let pongBall, playerPaddle, aiPaddle;
-        function setupPong() {
-            pongBall = { x: 200, y: 200, dx: 4, dy: 4, r: 8 };
-            playerPaddle = { x: 10, y: 160, w: 10, h: 80, dy: 0 };
-            aiPaddle = { x: 380, y: 160, w: 10, h: 80, dy: 4 };
-            gameInterval = setInterval(drawPong, 1000/60);
-        }
-
-        function drawPong() {
-            if (isVideoPlaying) return; // Game Pause saat video nyala
-
-            ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#fff'; ctx.setLineDash([5, 15]);
-            ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 400); ctx.stroke(); ctx.setLineDash([]);
-            drawParticles();
-
-            // Gerak
-            playerPaddle.y += playerPaddle.dy;
-            playerPaddle.y = Math.max(0, Math.min(400 - playerPaddle.h, playerPaddle.y));
-            
-            // AI
-            if(pongBall.y < aiPaddle.y + aiPaddle.h/2) aiPaddle.y -= aiPaddle.dy;
-            else if(pongBall.y > aiPaddle.y + aiPaddle.h/2) aiPaddle.y += aiPaddle.dy;
-            aiPaddle.y = Math.max(0, Math.min(400 - aiPaddle.h, aiPaddle.y));
-
-            pongBall.x += pongBall.dx; pongBall.y += pongBall.dy;
-
-            // Pantul Atas Bawah
-            if(pongBall.y - pongBall.r < 0 || pongBall.y + pongBall.r > 400) pongBall.dy *= -1;
-
-            // Tabrak Paddle Player (Tambah Skor)
-            if(pongBall.dx < 0 && pongBall.x - pongBall.r < playerPaddle.x + playerPaddle.w && pongBall.y > playerPaddle.y && pongBall.y < playerPaddle.y + playerPaddle.h) {
-                pongBall.dx *= -1.1; 
-                
-                let prevScore = score;
-                score++; 
-                soundEffect(600, 'square', 0.1);
-                createParticles(pongBall.x, pongBall.y, '#00ffcc');
-                document.getElementById('score').innerText = score;
-
-                // Memicu video setiap Kelipatan 5
-                if (Math.floor(score / 5) > Math.floor(prevScore / 5)) {
-                    triggerMilestoneVideo();
-                }
-            }
-            if(pongBall.dx > 0 && pongBall.x + pongBall.r > aiPaddle.x && pongBall.y > aiPaddle.y && pongBall.y < aiPaddle.y + aiPaddle.h) {
-                pongBall.dx *= -1.1; soundEffect(400, 'square', 0.1);
-            }
-
-            // Game Over
-            if(pongBall.x < 0) { triggerGameOver(); return; }
-            if(pongBall.x > 400) { pongBall.x = 200; pongBall.y = 200; pongBall.dx = 4; }
-
-            // Gambar
-            ctx.fillStyle = '#00ffcc'; ctx.fillRect(playerPaddle.x, playerPaddle.y, playerPaddle.w, playerPaddle.h);
-            ctx.fillStyle = '#ff4757'; ctx.fillRect(aiPaddle.x, aiPaddle.y, aiPaddle.w, aiPaddle.h);
-            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(pongBall.x, pongBall.y, pongBall.r, 0, Math.PI*2); ctx.fill();
-        }
-
-        // ==========================================
-        // 3. GAME CATCHER BOX (Setiap 10 poin)
-        // ==========================================
-        let catcherPlayer, itemsBox;
-        function setupCatcher() {
-            catcherPlayer = { x: 170, y: 360, w: 60, h: 20, dx: 0 };
-            itemsBox = [];
-            gameInterval = setInterval(drawCatcher, 1000/60);
-        }
-
-        function drawCatcher() {
-            if (isVideoPlaying) return; // Game Pause saat video nyala
-
-            ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            drawParticles();
-
-            catcherPlayer.x += catcherPlayer.dx;
-            catcherPlayer.x = Math.max(0, Math.min(400 - catcherPlayer.w, catcherPlayer.x));
-
-            if(Math.random() < 0.03) {
-                itemsBox.push({ x: Math.random() * 380, y: 0, w: 15, h: 15, dy: 3 + Math.random()*2, bad: Math.random() < 0.3 });
-            }
-
-            for(let i = itemsBox.length -1; i >= 0; i--) {
-                let item = itemsBox[i];
-                item.y += item.dy;
-                
-                // Cek tabrak basket
-                if(item.y + item.h > catcherPlayer.y && item.y < catcherPlayer.y + catcherPlayer.h && item.x + item.w > catcherPlayer.x && item.x < catcherPlayer.x + catcherPlayer.w) {
-                    if(item.bad) { triggerGameOver(); return; }
-                    else {
-                        let prevScore = score;
-                        score++; 
-                        document.getElementById('score').innerText = score;
-                        soundEffect(700, 'sine', 0.1);
-                        createParticles(item.x, item.y, '#f1c40f');
-
-                        // Memicu video SETIAP KELIPATAN 10 (Sesuai Permintaan)
-                        if (Math.floor(score / 10) > Math.floor(prevScore / 10)) {
-                            triggerMilestoneVideo();
-                        }
-                    }
-                    itemsBox.splice(i, 1);
-                    continue;
-                }
-
-                if(item.y > 400) itemsBox.splice(i, 1);
-                else {
-                    ctx.fillStyle = item.bad ? '#e74c3c' : '#f1c40f';
-                    ctx.fillRect(item.x, item.y, item.w, item.h);
-                }
-            }
-
-            ctx.fillStyle = '#3498db';
-            ctx.fillRect(catcherPlayer.x, catcherPlayer.y, catcherPlayer.w, catcherPlayer.h);
-        }
-
-        // ==========================================
-        // 4. GAME JUMPER BLOCK (Setiap 5 poin)
-        // ==========================================
-        let jumperPlayer, jumperObstacles, frames;
-        function setupJumper() {
-            jumperPlayer = { x: 50, y: 350, w: 20, h: 20, vy: 0, grounded: true };
-            jumperObstacles = [];
-            frames = 0;
-            gameInterval = setInterval(drawJumper, 1000/60);
-        }
-
-        function drawJumper() {
-            if (isVideoPlaying) return; // Game Pause saat video nyala
-
-            ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.moveTo(0, 370); ctx.lineTo(400, 370); ctx.stroke();
-            drawParticles();
-            frames++;
-
-            // Fisika Lompat
-            jumperPlayer.vy += 0.6; // gravity
-            jumperPlayer.y += jumperPlayer.vy;
-            if(jumperPlayer.y >= 350) {
-                jumperPlayer.y = 350; jumperPlayer.vy = 0; jumperPlayer.grounded = true;
-            }
-
-            // Spawn Obstacle
-            if(frames % 90 === 0 || (frames % 50 === 0 && Math.random() < 0.3)) {
-                jumperObstacles.push({ x: 400, y: 340, w: 15 + Math.random()*20, h: 30, dx: 4 + score*0.1 });
-            }
-
-            for(let i = jumperObstacles.length - 1; i >= 0; i--) {
-                let obs = jumperObstacles[i];
-                obs.x -= obs.dx;
-
-                // Tabrakan
-                if(jumperPlayer.x < obs.x + obs.w && jumperPlayer.x + jumperPlayer.w > obs.x &&
-                   jumperPlayer.y < obs.y + obs.h && jumperPlayer.y + jumperPlayer.h > obs.y) {
-                    triggerGameOver(); return;
-                }
-
-                // Terlewati (Tambah Skor)
-                if(obs.x + obs.w < 0) {
-                    jumperObstacles.splice(i, 1);
-                    
-                    let prevScore = score;
-                    score++; 
-                    document.getElementById('score').innerText = score;
-                    if(score % 5 == 0) soundEffect(800, 'sine', 0.2);
-
-                    // Memicu video setiap Kelipatan 5
-                    if (Math.floor(score / 5) > Math.floor(prevScore / 5)) {
-                        triggerMilestoneVideo();
-                    }
-                } else {
-                    ctx.fillStyle = '#e74c3c';
-                    ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-                }
-            }
-
-            ctx.fillStyle = '#00ffcc';
-            ctx.fillRect(jumperPlayer.x, jumperPlayer.y, jumperPlayer.w, jumperPlayer.h);
-        }
-    </script>
 </body>
 </html>
